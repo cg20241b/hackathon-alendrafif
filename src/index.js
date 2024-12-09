@@ -53,6 +53,46 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json
   digitMesh.position.set(3, 0, 0); // Right side of the view
   scene.add(digitMesh);
 
+  // Glowing Cube (Central Light Source)
+  const cubeSize = 0.5;
+  const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
+  // ShaderMaterial for the glowing effect
+  const glowMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      glowColor: { value: new THREE.Color(0xffffff) },  // White glow
+      intensity: { value: 2},  // Glow intensity
+    },
+    vertexShader: `
+      varying vec3 vPosition;
+      void main() {
+        vPosition = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      uniform float intensity;
+      varying vec3 vPosition;
+      
+      void main() {
+        float dist = length(vPosition);  // Calculate distance from the center
+        gl_FragColor = vec4(glowColor * intensity / (dist * dist), 1.0); // Glow based on distance
+      }
+    `,
+    side: THREE.FrontSide,
+    emissive: new THREE.Color(0xffffff),
+    flatShading: true,
+  });
+
+  const glowCube = new THREE.Mesh(cubeGeometry, glowMaterial);
+  glowCube.position.set(0, 0, 0); // Position the cube between the text meshes
+  scene.add(glowCube);
+
+  // Add a Point Light to simulate glowing effect
+  const cubeLight = new THREE.PointLight(0xffffff, 1, 10);
+  cubeLight.position.set(0, 0, 0); // Same position as the cube
+  scene.add(cubeLight);
 
   // Animation Loop
   function animate() {
