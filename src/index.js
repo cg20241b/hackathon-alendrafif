@@ -57,6 +57,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json
     metalness: 0.95, // Increased metalness for better reflections
     roughness: 0.1, // Lower roughness for smooth reflective surface
     emissive: new THREE.Color(0, 0, 0), // No glow on "7"
+    emissiveIntensity: 0.4,  // Strong glows
     flatShading: true,
   });
 
@@ -96,10 +97,37 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json
   // Now, make the cube emit light by updating the cubeLight's position
   glowCube.add(cubeLight);  // Attach light to the cube itself
 
+  // Variables to store current movements
+  let cubeYMovement = 0;
+  const cameraSpeed = 0.1; // Camera movement speed
+
+  // Keydown event listener for movement
+  document.addEventListener('keydown', (event) => {
+    // Cube movement with W and S
+    if (event.key === 'w' || event.key === 'W') {
+      cubeYMovement += 0.1; // Move cube up
+    } else if (event.key === 's' || event.key === 'S') {
+      cubeYMovement -= 0.1; // Move cube down
+    }
+
+    // Camera movement with A and D
+    if (event.key === 'a' || event.key === 'A') {
+      camera.position.x -= cameraSpeed; // Move camera left
+    } else if (event.key === 'd' || event.key === 'D') {
+      camera.position.x += cameraSpeed; // Move camera right
+    }
+  });
+
+  // Update the cube's position
+  function updateCubePosition() {
+    glowCube.position.y = cubeYMovement; // Update the Y position of the cube
+  }
+
   // Animation Loop
   function animate() {
     requestAnimationFrame(animate);
     controls.update(); // Update camera controls
+    updateCubePosition(); // Update the cube position based on key press
     renderer.render(scene, camera);
   }
 
